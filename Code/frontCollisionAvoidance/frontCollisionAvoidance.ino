@@ -3,18 +3,20 @@
 // Pin Setup
 /////////////////////////////////////
 
+// Minimum Distance
+const int minDist = 20;
 
 // Front Dist Sensor
-const int echoPin1 = 11; 
-const int trigPin1 = 12; 
+const int echoPin1 = 10; 
+const int trigPin1 = 8; 
 
 NewPing frontSonar(trigPin1,echoPin1,200);
 
 // Left Dist Sensor
-const int echoPin2 = 8; 
-const int trigPin2 = 10; 
+const int echoPin2 = 11; 
+const int trigPin2 = 12; 
  
-NewPing leftSonar(trigPin1,echoPin1,200);
+NewPing leftSonar(trigPin2,echoPin2,200);
 
 
 // motor 1 pins (left wheel) 
@@ -57,20 +59,21 @@ void setup() {
  
 void loop() {
   // Get front distance using NewPing
-  distance_F = frontSonar.ping_median(7) / 58.3;
+  distance_F = frontSonar.ping_median(9) / 58.3;
   Serial.print("Front Distance: ");
   Serial.print(distance_F);
   Serial.println(" cm");
 
-  if (distance_F > 0 && distance_F > 10) {
+  if (distance_F == 0 || distance_F > minDist) {
     move_forward();
-  } else {
+  } 
+  else {
     stop();
     Serial.println("Wall too close. Stopping.");
     while (true); // Stop forever
   }
 
-  delay(50); // Small delay to avoid flooding sensor
+  delay(100); // Small delay to avoid flooding sensor
 }
 
 void move_forward() { 
