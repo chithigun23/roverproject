@@ -1,21 +1,27 @@
-/////////////////////////////////////
-// Calibration Values
-/////////////////////////////////////
-const int side = 4000;
-const int turn = 825; // Use half for turbo mode
-
+#include <NewPing.h>
 /////////////////////////////////////
 // Pin Setup
 /////////////////////////////////////
 
-// sonar1 pins 
-const int echoPin1 = 11; // <-- assign proper pins
-const int trigPin1 = 10; 
- 
-// sonar2 pins 
-const int echoPin2 = 13; // <-- assign proper pins
+// Distances (cm)
+const int minDist = 20;
+const int leftDist = 4;
+const int rightDist = 8;
+
+
+// Front Dist Sensor
+const int echoPin1 = 10; 
+const int trigPin1 = 8; 
+
+NewPing frontSonar(trigPin1,echoPin1,200);
+
+// Left Dist Sensor
+const int echoPin2 = 11; 
 const int trigPin2 = 12; 
  
+NewPing leftSonar(trigPin2,echoPin2,200);
+
+
 // motor 1 pins (left wheel) 
 const int enablePinM1 = 9; // H-bridge enable pin 
 const int M12A = 5;        // Motor one pin 1 -- forwards 
@@ -26,9 +32,9 @@ const int enablePinM2 = 3; // H-bridge enable pin
 const int M23A = 2;        // Motor two pin 1 -- forwards 
 const int M24A = 6;        // Motor two pin 2 -- backwards 
  
-// keep track of sonar distances 
-float sonar1_distance;  
-float sonar2_distance; 
+// keep track of distances 
+float distance_F;  
+float distance_L; 
 
 void setup() { 
   Serial.begin(9600); 
@@ -51,66 +57,48 @@ void setup() {
   pinMode(enablePinM2, OUTPUT); 
   pinMode(M23A, OUTPUT); 
   pinMode(M24A, OUTPUT); 
-  analogWrite(enablePinM2, 200); 
+  digitalWrite(enablePinM2, HIGH); 
 } 
  
-void loop() { 
-  delay(2000);
-  for (int i = 0; i < 4; i++) {  
-    // Move forward ~20cm 
-    move_forward(); 
-    delay(side);  // values may need tweaking after testing 
-    stop(); 
-    delay(150);   // small delay 
+void loop() {
 
-    turn_right();
-    delay(turn);  // values may need tweaking after testing 
-    stop(); 
-    delay(150);   // small delay 
+  
+  distance_L = leftSonar.ping_median(9) / 58.3;
 
+  while (distance_L > rightDist) {
+  
+  turn_left();
+  }
+
+  while (distance_L < leftDist) {
+
+  turn_right();
+  }
+
+  while (leftDist < distance_L && rightDist > distance_L){
+
+    // Get front distance using NewPing
+  distance_F = frontSonar.ping_median(9) / 58.3;
+  Serial.print("Front Distance: ");
+  Serial.print(distance_F);
+  Serial.println(" cm");
+
+  if (distance_F == 0 || distance_F > minDist) {
+    move_forward();
   } 
+  else {
+    stop();
+    Serial.println("Wall too close. Stopping.");
+    while (true); // Stop forever
+  }
 
-  delay(2000);
-  for (int i = 0; i < 4; i++) {  
-    // Move forward ~20cm 
-    move_forward(); 
-    delay(side);  // values may need tweaking after testing 
-    stop(); 
-    delay(150);   // small delay 
+  delay(100); // Small delay to avoid flooding sensor
 
-    turn_left();
-    delay(turn);  // values may need tweaking after testing 
-    stop(); 
-    delay(150);   // small delay 
+  }
 
-  } 
- 
-  // Stop after completing the move 
-  while (true) { 
-    stop(); 
-  } 
-} 
+  
+}
 
-void update_sonar_distances() { 
-  // Trigger sonar 1 
-  digitalWrite(trigPin1, LOW); 
-  delayMicroseconds(2); 
-  digitalWrite(trigPin1, HIGH); 
-  delayMicroseconds(10); 
-  digitalWrite(trigPin1, LOW); 
-  sonar1_distance = pulseIn(echoPin1, HIGH) / 58.0; 
- 
-  delay(50); // Small delay between triggers 
- 
-  // Trigger sonar 2 
-  digitalWrite(trigPin2, LOW); 
-  delayMicroseconds(2); 
-  digitalWrite(trigPin2, HIGH); 
-  delayMicroseconds(10); 
-  digitalWrite(trigPin2, LOW); 
-  sonar2_distance = pulseIn(echoPin2, HIGH) / 58.0; 
-} 
- 
 void move_forward() { 
   digitalWrite(M11A, HIGH); 
   digitalWrite(M12A, LOW); 
