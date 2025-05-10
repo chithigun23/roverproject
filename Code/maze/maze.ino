@@ -4,9 +4,9 @@
 /////////////////////////////////////
 
 // Distances (cm)
-const int minDistF = 13;
-const float minDistL = 5;
-const float maxDistL = 9.5;
+const int minDistF = 10;
+const float minDistL = 4;
+const float maxDistL = 9;
 
 
 // Front Dist Sensor
@@ -62,7 +62,7 @@ void setup() {
  
 void loop() {
 
-  anti_front_collision();
+  left_wall_keeping();
 
   // while (leftDist < distance_L && rightDist > distance_L){
 
@@ -87,16 +87,27 @@ void loop() {
   
 }
 
+void print_info(String desc, float dist_F, float dist_L) {
+  Serial.print(desc);
+  Serial.print(": distance_F = ");
+  Serial.print(dist_F);
+  Serial.print(", distance_L = ");
+  Serial.println(dist_L);
+}
+
 void anti_front_collision() {
   distance_F = frontSonar.ping_median(9) / 58.3;
   distance_L = leftSonar.ping_median(9) / 58.3;
 
-  if (distance_F < minDistF) {
+  if (distance_F < minDistF && distance_F != 0) {
+    print_info(" F < minDistF && distance_F != 0", distance_F, distance_L);
+
     move_backward();
     delay(200);
     stop();
   }
   else {
+    print_info(" else F < minDistF && distance_F != 0", distance_F, distance_L);
     left_wall_keeping();
   } 
 }
@@ -105,24 +116,77 @@ void anti_front_collision() {
 void left_wall_keeping() {
 
   distance_L = leftSonar.ping_median(9) / 58.3;
+  distance_F = frontSonar.ping_median(9) / 58.3;
 
-  if (distance_L > maxDistL) {
-  
+  if (distance_L > maxDistL && distance_F > minDistF && minDistF != 0) {
+  print_info("Too close right. Clear ahead. Veering left", distance_F, distance_L);
   move_slight_left();
   delay(200);
   stop();
   }
 
-  else if (distance_L < minDistL) {
+  else if (distance_L > maxDistL && distance_F > minDistF && distance_F != 0) {
+  print_info("Too close right. NOT Clear ahead. Reversing and Turning Right", distance_F, distance_L);
+  move_backward();
+  delay(500);
+  turn_right();
+  delay(200);
+  move_forward();
+  delay(200);
+  stop();
+  }
+
+  else if (distance_L < minDistL && distance_F > minDistF && distance_F != 0 && distance_L != 0 ) {
+  print_info("Too close left. Clear ahead. Veering right", distance_F, distance_L);
   move_slight_right();
   delay(200);
   stop();
   }
 
-  else {
+  else if (distance_L < minDistL && distance_F > minDistF && minDistF != 0) {
+  print_info("Too close left. NOT Clear ahead. Reversing and Turning Left", distance_F, distance_L);
+  move_backward();
+  delay(500);
+  turn_left();
+  delay(200);
   move_forward();
   delay(200);
   stop();
+  }
+
+  else if (distance_L < minDistL && distance_F < minDistF && minDistF != 0) {
+  print_info("Right Corner, Turning Sharp Right", distance_F, distance_L);
+  turn_right();
+  delay(800);
+  stop();
+  }
+
+  else if (distance_L > maxDistL && distance_F < minDistF && distance_F != 0 ||distance_L == 0 ) {
+  print_info("Left Corner, Turning Sharp Left", distance_F, distance_L);
+  turn_left();
+  delay(800);
+  stop();
+  }
+
+  else if (distance_L > minDistL && distance_L < maxDistL && distance_F < minDistF && distance_F != 0) {
+  print_info("Right Corner, Turning NOT_AS_Sharp Right", distance_F, distance_L);
+  turn_right();
+  delay(600);
+  stop();
+  }
+  else {
+    if (distance_F == 0 || distance_F > minDistF) {
+      print_info("All Clear, Moving Forward", distance_F, distance_L);
+      move_forward();
+      delay(500);
+      stop();
+    }
+    else {
+      print_info("object detected, reversing", distance_F, distance_L);
+      move_backward();
+      delay(500);
+      stop();
+    }
   }
 }
 
