@@ -95,8 +95,12 @@ void loop() {
   delay(100); // Small delay to avoid flooding sensor
 
   }
-
   
+}
+
+void move_slight_left() {
+  turn_left();
+  delay(200); // move slight left
 }
 
 void move_forward() { 
