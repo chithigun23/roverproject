@@ -4,9 +4,9 @@
 /////////////////////////////////////
 
 // Distances (cm)
-const int minDist = 20;
-const int leftDist = 4;
-const int rightDist = 8;
+const int minDistF = 20;
+const int minDistL = 2;
+const int maxDistL = 4;
 
 
 // Front Dist Sensor
@@ -62,45 +62,62 @@ void setup() {
  
 void loop() {
 
-  
-  distance_L = leftSonar.ping_median(9) / 58.3;
+  left_wall_keeping();
 
-  while (distance_L > rightDist) {
-  
-  turn_left();
-  }
-
-  while (distance_L < leftDist) {
-
-  turn_right();
-  }
-
-  while (leftDist < distance_L && rightDist > distance_L){
+  // while (leftDist < distance_L && rightDist > distance_L){
 
     // Get front distance using NewPing
-  distance_F = frontSonar.ping_median(9) / 58.3;
-  Serial.print("Front Distance: ");
-  Serial.print(distance_F);
-  Serial.println(" cm");
+  // distance_F = frontSonar.ping_median(9) / 58.3;
+  // Serial.print("Front Distance: ");
+  // Serial.print(distance_F);
+  // Serial.println(" cm");
 
-  if (distance_F == 0 || distance_F > minDist) {
-    move_forward();
-  } 
-  else {
-    stop();
-    Serial.println("Wall too close. Stopping.");
-    while (true); // Stop forever
-  }
+  // if (distance_F == 0 || distance_F > minDist) {
+    // move_forward();
+  // } 
+  // else {
+    // stop();
+    // Serial.println("Wall too close. Stopping.");
+    // while (true); // Stop forever
+  // }
 
-  delay(100); // Small delay to avoid flooding sensor
+  // delay(100); // Small delay to avoid flooding sensor
 
-  }
+  //  }
   
+}
+
+void left_wall_keeping() {
+
+  distance_L = leftSonar.ping_median(9) / 58.3;
+
+  if (distance_L > maxDistL) {
+  
+  move_slight_left();
+  delay(200);
+  stop();
+  }
+
+  if (distance_L < minDistL) {
+  move_slight_right();
+  delay(200);
+  stop();
+
+  }
 }
 
 void move_slight_left() {
   turn_left();
-  delay(200); // move slight left
+  delay(200);
+  move_forward();
+  delay(200);
+}
+
+void move_slight_right() {
+  turn_right();
+  delay(200);
+  move_forward();
+  delay(200);
 }
 
 void move_forward() { 
