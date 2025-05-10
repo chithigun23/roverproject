@@ -4,9 +4,9 @@
 /////////////////////////////////////
 
 // Distances (cm)
-const int minDistF = 20;
-const int minDistL = 2;
-const int maxDistL = 4;
+const int minDistF = 13;
+const float minDistL = 5;
+const float maxDistL = 9.5;
 
 
 // Front Dist Sensor
@@ -62,7 +62,7 @@ void setup() {
  
 void loop() {
 
-  left_wall_keeping();
+  anti_front_collision();
 
   // while (leftDist < distance_L && rightDist > distance_L){
 
@@ -87,6 +87,21 @@ void loop() {
   
 }
 
+void anti_front_collision() {
+  distance_F = frontSonar.ping_median(9) / 58.3;
+  distance_L = leftSonar.ping_median(9) / 58.3;
+
+  if (distance_F < minDistF) {
+    move_backward();
+    delay(200);
+    stop();
+  }
+  else {
+    left_wall_keeping();
+  } 
+}
+
+
 void left_wall_keeping() {
 
   distance_L = leftSonar.ping_median(9) / 58.3;
@@ -98,11 +113,16 @@ void left_wall_keeping() {
   stop();
   }
 
-  if (distance_L < minDistL) {
+  else if (distance_L < minDistL) {
   move_slight_right();
   delay(200);
   stop();
+  }
 
+  else {
+  move_forward();
+  delay(200);
+  stop();
   }
 }
 
@@ -110,14 +130,14 @@ void move_slight_left() {
   turn_left();
   delay(200);
   move_forward();
-  delay(200);
+  delay(500);
 }
 
 void move_slight_right() {
   turn_right();
   delay(200);
   move_forward();
-  delay(200);
+  delay(500);
 }
 
 void move_forward() { 
