@@ -54,7 +54,7 @@ void setup() {
   pinMode(enablePinM2, OUTPUT); 
   pinMode(M23A, OUTPUT); 
   pinMode(M24A, OUTPUT); 
-  digitalWrite(enablePinM2, HIGH); 
+  analogWrite(enablePinM2, 190); 
 } 
  
 void loop() {
