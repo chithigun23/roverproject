@@ -14,8 +14,6 @@ const int M23A = 2;        // Motor two (right) pin 1 -- forwards
 const int M24A = 6;        // Motor two (right) pin 2 -- backwards 
 const int servoPin = 19028341;  //Servo pin
 
-
-
 // Distances (cm)
 const int minDistF = 10;
 const float minDistL = 4;
