@@ -2,24 +2,22 @@
 #include <Servo.h> //remember to install libary
 
 // Pin Setup
-const int echoPin1 = 10; // Front Dist Sensor
-const int trigPin1 = 8; // Front Dist Sensor
-const int echoPin2 = 11; // Left Dist Sensor
-const int trigPin2 = 12; // Left Dist Sensor
+const int echoPin1 = 12; // Front Dist Sensor
+const int trigPin1 = 11; // Front Dist Sensor
+const int echoPin2 = 7; // Left Dist Sensor
+const int trigPin2 = 8; // Left Dist Sensor
 const int enablePinM1 = 9; // H-bridge enable pin 
 const int M12A = 5;        // Motor one (left) pin 1 -- forwards 
 const int M11A = 4;        // Motor one (left) pin 2 -- backwards  
 const int enablePinM2 = 3; // H-bridge enable pin 
 const int M23A = 2;        // Motor two (right) pin 1 -- forwards 
 const int M24A = 6;        // Motor two (right) pin 2 -- backwards 
-const int servoPin = 19028341;  //Servo pin
-
-
+const int servoPin = 10;  //Servo pin
 
 // Distances (cm)
-const int minDistF = 10;
-const float minDistL = 4;
-const float maxDistL = 9;
+const int minDistF = 5;
+const float minDistL = 3;
+const float maxDistL = 6.5;
 
 // keep track of distances 
 float distance_F;  
@@ -59,7 +57,12 @@ void setup() {
 } 
  
 void loop() {
-  Serial.print("hello");
+  distance_F = frontSonar.ping_median(9) / 58.3;
+  distance_L = leftSonar.ping_median(9) / 58.3;
+
+  left_wall_keeping();
+
+  
 
 }
 
@@ -106,13 +109,9 @@ void anti_front_collision() {
 
 
 void left_wall_keeping() {
-
-  distance_L = leftSonar.ping_median(9) / 58.3;
-  distance_F = frontSonar.ping_median(9) / 58.3;
-
   if (distance_L > maxDistL && distance_F > minDistF && minDistF != 0) {
   print_info("Too close right. Clear ahead. Veering left", distance_F, distance_L);
-  turn_left(100);
+  turn_left(255);
   delay(200);
   stop();
   }
@@ -130,7 +129,7 @@ void left_wall_keeping() {
 
   else if (distance_L < minDistL && distance_F > minDistF && distance_F != 0 && distance_L != 0 ) {
   print_info("Too close left. Clear ahead. Veering right", distance_F, distance_L);
-  turn_right(100);
+  turn_right(255);
   delay(200);
   stop();
   }
@@ -185,8 +184,8 @@ void left_wall_keeping() {
 
 
 void move_forward(int speed) { 
-  analogWrite(M11A, speed); 
-  analogWrite(M12A, 0); 
+  analogWrite(M11A, 0); 
+  analogWrite(M12A, speed); 
  
   analogWrite(M23A, speed); 
   analogWrite(M24A, 0); 
@@ -203,8 +202,8 @@ void move_backward(int speed) {
 // left wheel forward, right wheel backward
 //speed is analogWrite, 0 - 255
 void turn_right(int speed) {
-  analogWrite(M11A, speed); 
-  analogWrite(M12A, 0); 
+  analogWrite(M11A, 0); 
+  analogWrite(M12A, speed); 
    
   analogWrite(M23A, 0); 
   analogWrite(M24A, speed); 
@@ -213,8 +212,8 @@ void turn_right(int speed) {
 // right wheel forward, left wheel backward
 //speed is analogWrite, 0 - 255
 void turn_left(int speed) {
-  analogWrite(M11A, 0); 
-  analogWrite(M12A, speed); 
+  analogWrite(M11A, speed); 
+  analogWrite(M12A, 0); 
    
   analogWrite(M23A, speed); 
   analogWrite(M24A, 0); 
