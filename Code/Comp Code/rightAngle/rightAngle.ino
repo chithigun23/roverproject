@@ -1,33 +1,36 @@
 #include <NewPing.h>
+#include <Servo.h>
 /////////////////////////////////////
 // Pin Setup
 /////////////////////////////////////
-
+Servo myServo;
 // Minimum Distance
-const int minDist = 20;
+#define minDist 20
+#define leftTurnCal 900
+#define rightTurnCal 900
 
-// Front Dist Sensor
-const int echoPin1 = 10; 
-const int trigPin1 = 8; 
+// Set up pin names
 
-NewPing frontSonar(trigPin1,echoPin1,200);
+// Front Sonar
+#define triggerFront 11
+#define echoFront 12
 
-// Left Dist Sensor
-const int echoPin2 = 11; 
-const int trigPin2 = 12; 
- 
-NewPing leftSonar(trigPin2,echoPin2,200);
+// Side Sonar
+#define triggerLeft 8
+#define echoLeft 7
 
+#define ServoPin 10
 
-// motor 1 pins (left wheel) 
-const int enablePinM1 = 9; // H-bridge enable pin 
-const int M12A = 5;        // Motor one pin 1 -- forwards 
-const int M11A = 4;        // Motor one pin 2 -- backwards 
- 
-// motor 2 pins (right wheel) 
-const int enablePinM2 = 3; // H-bridge enable pin 
-const int M23A = 2;        // Motor two pin 1 -- forwards 
-const int M24A = 6;        // Motor two pin 2 -- backwards 
+#define enablePinM1 9
+#define M12A 4
+#define M11A 5
+
+#define enablePinM2 3
+#define M23A 2
+#define M24A 6
+
+NewPing frontSonar(triggerFront,echoFront,200);
+NewPing leftSonar(triggerLeft,echoLeft,200);
  
 // keep track of distances 
 float distance_F;  
@@ -35,14 +38,9 @@ float distance_L;
 
 void setup() { 
   Serial.begin(9600); 
- 
-  // enable sonar1 pins   
-  pinMode(trigPin1, OUTPUT); 
-  pinMode(echoPin1, INPUT); 
- 
-  // enable sonar2 pins 
-  pinMode(trigPin2, OUTPUT); 
-  pinMode(echoPin2, INPUT); 
+  
+  myServo.attach(ServoPin);
+  myServo.write(90);
      
   // enable motor 1 and its pins 
   pinMode(enablePinM1, OUTPUT); 
@@ -60,26 +58,22 @@ void setup() {
 void loop() {
   distance_F = frontSonar.ping_median(9) / 58.3;
   distance_L = leftSonar.ping_median(9) / 58.3;
-
+  Serial.println(distance_F);
   //if there is a front wall
   if ((distance_F != 0) && (distance_F < minDist)) {
     //if there is a left wall 
-    if ((distance_L !=0) && (distance_L > 20)) {
-      turn_right();
-      delay(900);
-      stop();
+    if ((distance_L !=0) && (distance_L > minDist)) {
+      turn_right(rightTurnCal);
     }
-    if ((distance_L != 0) && (distance_L < 20)) {
+    if ((distance_L == 0) || (distance_L < minDist)) {
     //if there is not a left wall
-      turn_left();
-      delay(900);
-      stop();
+      turn_left(leftTurnCal);
     }
   }
 
   else {
     move_forward();
-    delay(1000);
+    delay(500);
   }
 
  
@@ -104,22 +98,25 @@ void move_backward() {
   digitalWrite(M24A, HIGH); 
 } 
 
-// left wheel forward, right wheel backward
-void turn_right() {
+void turn_left(int x) {
   digitalWrite(M11A, HIGH); 
   digitalWrite(M12A, LOW); 
    
   digitalWrite(M23A, LOW); 
   digitalWrite(M24A, HIGH); 
+
+  delay(x);
+  stop();
 }
 
-// right wheel forward, left wheel backward
-void turn_left() {
+void turn_right(int x) {
   digitalWrite(M11A, LOW); 
   digitalWrite(M12A, HIGH); 
    
   digitalWrite(M23A, HIGH); 
   digitalWrite(M24A, LOW); 
+  delay(x);
+  stop();
 }
 
 void stop() { 

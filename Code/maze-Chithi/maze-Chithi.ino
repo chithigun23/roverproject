@@ -72,7 +72,7 @@ void loop() {
 
 
 
-  //If distance_F < 7 then stop 
+  //If distance_F < 10 then stop 
   if (distance_F < 10 && distance_F != 0){
     
     stop();
@@ -88,14 +88,22 @@ void loop() {
     delay(1000);
 
     if(abs(leftOption - rightOption) < 2) { //This is the condition where left and right options are about the same length
-
-    } else if (leftOption > rightOption) {
-      turn_right(600);
+      turn_left(600); 
       while(true){
         stop();
       }
-    } else{
-      turn_left(600);
+
+    } 
+
+    else if (leftOption > rightOption) {  //Its not the same distance, and theres more room to the left. Thus turn left.
+      turn_left(600); 
+      while(true){
+        stop();
+      }
+    } 
+
+    else{                                 //Its not the same distance, and theres more room to the right. Thus turn right.
+      turn_right(600);
       while(true){
         stop();
       }
@@ -137,20 +145,20 @@ void swerve_servo() {
 
 
 
-void move_forward(int speed) { 
+void move_forward(int time) { 
   analogWrite(M11A, 0); 
-  analogWrite(M12A, speed); 
+  analogWrite(M12A, 255); 
  
-  analogWrite(M23A, speed); 
+  analogWrite(M23A, 255); 
   analogWrite(M24A, 0); 
 } 
 
 void move_backward(int speed) { 
-  analogWrite(M11A, 0); 
-  analogWrite(M12A, speed); 
+  analogWrite(M11A, 255); 
+  analogWrite(M12A, 0); 
  
   analogWrite(M23A, 0); 
-  analogWrite(M24A, speed); 
+  analogWrite(M24A, 255); 
 } 
 
 
