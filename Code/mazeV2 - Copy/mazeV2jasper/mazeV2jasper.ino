@@ -34,6 +34,10 @@ NewPing frontSonar(trigPin1,echoPin1,200);
 NewPing leftSonar(trigPin2,echoPin2,200);
 
 bool checking_sides = false;
+int checking_count = 0;
+int check_left_count = 0;
+int check_right_count = 0;
+int count_max = 15;
 
 void setup() { 
   Serial.begin(9600); 
@@ -67,49 +71,52 @@ void loop() {
   distance_L = leftSonar.ping_median(9) / 58.3;
 
   Serial.println(distance_F);
-  delay(1000);
   move_forward(255);
 
+  if (checking_sides) {
+    if (check_left_count < count_max) {
+      myservo.write(180);
+      leftOption = readFront();
+      check_left_count += 1;
+    }
+    else if (check_right_count < count_max) {
+      myservo.write(0);
+      rightOption = readFront();
+      check_right_count += 1;
+    }
+    else {
+      checking_sides = false;
+      check_left_count = 0;
+      check_right_count = 0;
 
-
-  //If distance_F < 7 then stop 
-  if (distance_F < 10 && distance_F != 0){
-    
-    stop();
-    myservo.write(180);
-    delay(1000);
-    leftOption = readFront();
-    delay(1000);
-    myservo.write(0);
-    delay(1000);
-    rightOption = readFront();
-    delay(1000);
-    myservo.write(90);
-    delay(1000);
-
-    if(abs(leftOption - rightOption) < 2) { //This is the condition where left and right options are about the same length
-
-    } else if (leftOption > rightOption) {
-      turn_right(600);
-      while(true){
-        stop();
+      if (fabs(leftOption - rightOption) < 2) {
+        if (leftOption > rightOption) {
+          turn_right(600);
+        } else {
+          turn_left(600);
+        }
+      } else {
+        if (leftOption > rightOption) {
+          turn_left(600);
+        } else {
+          turn_right(600);
+        }
       }
-    } else{
-      turn_left(600);
-      while(true){
+
+      while (true) {
         stop();
       }
     }
-
-
-    
-
-
   }
 
-  
-
+  if (!checking_sides) {
+    if (distance_F < 10 && distance_F != 0) {
+      checking_sides = true;
+      stop();
+    }
+  }
 }
+
 
 void print_info(String desc, float dist_F, float dist_L) {
   Serial.print(desc);
