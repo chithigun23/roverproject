@@ -23,9 +23,6 @@ const float maxDistL = 6.5;
 float distance_F;  
 float distance_L; 
 
-float leftOption;
-float rightOption;
-
 Servo myservo; //servo object to control servo
 // store servo position
 int servo_pos = 0;
@@ -57,27 +54,13 @@ void setup() {
   analogWrite(enablePinM2, 255); 
 
   myservo.attach(servoPin);
-  myservo.write(90);
 } 
  
 void loop() {
   distance_F = frontSonar.ping_median(9) / 58.3;
   distance_L = leftSonar.ping_median(9) / 58.3;
 
-  Serial.println(distance_F);
-  delay(1000);
-  move_forward(255);
-
-  //If distance_F < 7 then stop 
-  if (distance_F < 10 && distance_F != 0){
-    
-    stop();
-    myservo.write(180);
-    leftOption = 
-    delay(1500);
-
-
-  }
+  left_wall_keeping();
 
   
 
@@ -106,6 +89,97 @@ void swerve_servo() {
 }
 //swerve_servo references the swerve example in (https://docs.arduino.cc/learn/electronics/servo-motors/)
 
+
+void anti_front_collision() {
+  distance_F = frontSonar.ping_median(9) / 58.3;
+  distance_L = leftSonar.ping_median(9) / 58.3;
+
+  if (distance_F < minDistF && distance_F != 0) {
+    print_info(" F < minDistF && distance_F != 0", distance_F, distance_L);
+
+    move_backward(255);
+    delay(200);
+    stop();
+  }
+  else {
+    print_info(" else F < minDistF && distance_F != 0", distance_F, distance_L);
+    left_wall_keeping();
+  } 
+}
+
+
+void left_wall_keeping() {
+  if (distance_L > maxDistL && distance_F > minDistF && minDistF != 0) {
+  print_info("Too close right. Clear ahead. Veering left", distance_F, distance_L);
+  turn_left(255);
+  delay(200);
+  stop();
+  }
+
+  else if (distance_L > maxDistL && distance_F > minDistF && distance_F != 0) {
+  print_info("Too close right. NOT Clear ahead. Reversing and Turning Right", distance_F, distance_L);
+  move_backward(255);
+  delay(500);
+  turn_right(255);
+  delay(200);
+  move_forward(255);
+  delay(200);
+  stop();
+  }
+
+  else if (distance_L < minDistL && distance_F > minDistF && distance_F != 0 && distance_L != 0 ) {
+  print_info("Too close left. Clear ahead. Veering right", distance_F, distance_L);
+  turn_right(255);
+  delay(200);
+  stop();
+  }
+
+  else if (distance_L < minDistL && distance_F > minDistF && minDistF != 0) {
+  print_info("Too close left. NOT Clear ahead. Reversing and Turning Left", distance_F, distance_L);
+  move_backward(255);
+  delay(500);
+  turn_left(255);
+  delay(200);
+  move_forward(255);
+  delay(200);
+  stop();
+  }
+
+  else if (distance_L < minDistL && distance_F < minDistF && minDistF != 0) {
+  print_info("Right Corner, Turning Sharp Right", distance_F, distance_L);
+  turn_right(255);
+  delay(800);
+  stop();
+  }
+
+  else if (distance_L > maxDistL && distance_F < minDistF && distance_F != 0 ||distance_L == 0 ) {
+  print_info("Left Corner, Turning Sharp Left", distance_F, distance_L);
+  turn_left(255);
+  delay(800);
+  stop();
+  }
+
+  else if (distance_L > minDistL && distance_L < maxDistL && distance_F < minDistF && distance_F != 0) {
+  print_info("Right Corner, Turning NOT_AS_Sharp Right", distance_F, distance_L);
+  turn_right(255);
+  delay(600);
+  stop();
+  }
+  else {
+    if (distance_F == 0 || distance_F > minDistF) {
+      print_info("All Clear, Moving Forward", distance_F, distance_L);
+      move_forward(255);
+      delay(500);
+      stop();
+    }
+    else {
+      print_info("object detected, reversing", distance_F, distance_L);
+      move_backward(255);
+      delay(500);
+      stop();
+    }
+  }
+}
 
 
 

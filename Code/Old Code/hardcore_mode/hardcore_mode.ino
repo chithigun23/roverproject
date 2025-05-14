@@ -23,9 +23,6 @@ const float maxDistL = 6.5;
 float distance_F;  
 float distance_L; 
 
-float leftOption;
-float rightOption;
-
 Servo myservo; //servo object to control servo
 // store servo position
 int servo_pos = 0;
@@ -57,57 +54,61 @@ void setup() {
   analogWrite(enablePinM2, 255); 
 
   myservo.attach(servoPin);
-  myservo.write(90);
 } 
  
 void loop() {
-  distance_F = frontSonar.ping_median(9) / 58.3;
-  distance_L = leftSonar.ping_median(9) / 58.3;
-
-  Serial.println(distance_F);
-  delay(1000);
   move_forward(255);
-
-  //If distance_F < 7 then stop 
-  if (distance_F < 10 && distance_F != 0){
-    
-    stop();
-    myservo.write(180);
-    leftOption = 
-    delay(1500);
-
-
-  }
-
-  
-
+  delay(5600);
+  stop();
+  delay(200);
+  turn_left(255);
+  delay(970);
+  stop();
+  delay(200);
+  move_forward(255);
+  delay(2850);
+  stop();
+  delay(200);
+  turn_right(255);
+  delay(970);
+  stop();
+  delay(200);
+  move_forward(255);
+  delay(2850);
+  stop();
+  delay(200);
+  turn_left(255);
+  delay(1200);
+  stop();
+  move_forward(255);
+  delay(2850);
+  stop();
+  delay(200);
+  turn_left(255);
+  delay(970);
+  stop();
+  delay(200);
+  move_forward(255);
+  delay(7800);
+  stop();
+  delay(200);
+  turn_right(255);
+  delay(1010);
+  stop();
+  delay(200);
+  move_forward(255);
+  delay(3000);
+  stop();
+  delay(200);
+  turn_right(255);
+  delay(1010);
+  stop();
+  delay(200);
+  move_forward(255);
+  delay(10000);
+  stop();
+  delay(5000);
 }
-
-void print_info(String desc, float dist_F, float dist_L) {
-  Serial.print(desc);
-  Serial.print(": distance_F = ");
-  Serial.print(dist_F);
-  Serial.print(", distance_L = ");
-  Serial.println(dist_L);
-}
-
-void swerve_servo() {
-  for (servo_pos = 0; servo_pos <= 180; servo_pos += 1) { // goes from 0 degrees to 180 degrees
-    // in steps of 1 degree
-    myservo.write(servo_pos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15ms for the servo to reach the position
-  }
-
-  for (servo_pos = 180; servo_pos >= 0; servo_pos -= 1) { // goes from 180 degrees to 0 degrees
-    myservo.write(servo_pos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15ms for the servo to reach the position
-
-  }
-}
-//swerve_servo references the swerve example in (https://docs.arduino.cc/learn/electronics/servo-motors/)
-
-
-
 
 void move_forward(int speed) { 
   analogWrite(M11A, 0); 
