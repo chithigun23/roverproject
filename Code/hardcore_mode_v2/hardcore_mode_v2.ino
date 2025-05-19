@@ -58,15 +58,7 @@ void setup() {
  
 void loop() {
   move_forward(255);
-  delay(5600);
-  stop();
-  delay(200);
-  turn_left(255);
-  delay(970);
-  stop();
-  delay(200);
-  move_forward(255);
-  delay(2850);
+  delay(2500);
   stop();
   delay(200);
   turn_right(255);
@@ -74,34 +66,26 @@ void loop() {
   stop();
   delay(200);
   move_forward(255);
-  delay(2850);
+  delay(3500);
   stop();
   delay(200);
   turn_left(255);
-  delay(1200);
-  stop();
-  move_forward(255);
-  delay(2850);
-  stop();
-  delay(200);
-  turn_left(255);
-  delay(915);
+  delay(970);
   stop();
   delay(200);
   move_forward(255);
-  delay(7400);
+  delay(3500);
   stop();
   delay(200);
   turn_right(255);
-  delay(1010);
+  delay(970);
   stop();
-  delay(200);
   move_forward(255);
-  delay(3000);
+  delay(3500);
   stop();
   delay(200);
   turn_right(255);
-  delay(1030);
+  delay(970);
   stop();
   delay(200);
   while(true){

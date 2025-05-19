@@ -5,9 +5,10 @@
 /////////////////////////////////////
 Servo myServo;
 // Minimum Distance
-#define minDist 20
-#define leftTurnCal 900
-#define rightTurnCal 900
+#define minDistL 8
+#define minDistF 12
+#define leftTurnCal 995
+#define rightTurnCal 995
 
 // Set up pin names
 
@@ -60,12 +61,12 @@ void loop() {
   distance_L = leftSonar.ping_median(9) / 58.3;
   Serial.println(distance_F);
   //if there is a front wall
-  if ((distance_F != 0) && (distance_F < minDist)) {
+  if ((distance_F != 0) && (distance_F < minDistF)) {
     //if there is a left wall 
-    if ((distance_L !=0) && (distance_L > minDist)) {
+    if ((distance_L !=0) && (distance_L > minDistL)) {
       turn_right(rightTurnCal);
     }
-    if ((distance_L == 0) || (distance_L < minDist)) {
+    if ((distance_L == 0) || (distance_L < minDistL)) {
     //if there is not a left wall
       turn_left(leftTurnCal);
     }

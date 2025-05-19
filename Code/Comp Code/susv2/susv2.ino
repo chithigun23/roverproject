@@ -12,12 +12,12 @@ double r;
 // Set up pin names
 
 // Front Sonar
-#define SonarIN 12
-#define SonarOUT 11
+#define SonarIN 11
+#define SonarOUT 12
 
 // Side Sonar
-#define SonarIN2 7
-#define SonarOUT2 8
+#define SonarIN2 8
+#define SonarOUT2 7
 
 #define ServoPin 10
 
@@ -33,9 +33,9 @@ NewPing frontSonar(SonarIN,SonarOUT,200);
 NewPing leftSonar(SonarIN2,SonarOUT2,200);
 
 // Calibration Values
-#define obst_thresh 6
-#define turn_delay 800
-#define minLeft 6
+#define obst_thresh 12
+#define turn_delay 650
+#define minLeft 5
 #define maxLeft 8
 
 void stop(){
@@ -112,20 +112,20 @@ void sonarTurn() {
   l = 0;
   r = 0;
   sonar();
-  delay(100);
-  if(distance < obst_thresh) {
+  delay(300);
+  if(distance < obst_thresh && distance != 0) {
     stop();
-    delay(500);
+    delay(800);
     servo.write(0);
-    delay(500);
+    delay(800);
     sonar();
     r = distance;
-    delay(200);
+    delay(800);
     servo.write(180);
-    delay(500);
+    delay(800);
     sonar();
     l = distance;
-    delay(200);
+    delay(800);
     servo.write(90);
     delay(1000);
 
@@ -154,11 +154,11 @@ void sonarTurn() {
 void sonarDrive() {
   sonar2();
   
-  if (distance2 > minLeft) {
-    right();
+  if (distance2 > maxLeft) {
+    semileft();
   }
   else if (distance2 < maxLeft) {
-    semileft();
+    right();
   }
   else {
     go();
